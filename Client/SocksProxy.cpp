@@ -31,7 +31,10 @@ int SocksProxy::Confirm(SOCKET sClient)
 int SocksProxy::Init(int iPort)
 {
     sServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    sock.Bind(sServer, iPort, AF_INET);
+    if (sock.Bind(sServer, iPort, AF_INET)<0)
+    {
+        cout << "Bind Failed" << endl;
+    }
     return 0;
 }
 
@@ -148,8 +151,9 @@ int SocksProxy::Mediator(SOCKET sClient)
                 if (!FD_ISSET(sClient, &fds_client))
                 {
                     FD_SET(sClient, &fds_client);
+                    MSleep(1, "ms");
                 }
-                if (select(0, &fds_client, NULL, NULL, &tv_temp) <= 0)
+                if (select(sClient+1, &fds_client, NULL, NULL, &tv_temp) <= 0)
                 {
                     break;
                 }
@@ -177,8 +181,9 @@ int SocksProxy::Mediator(SOCKET sClient)
                 if (!FD_ISSET(sServer, &fds_server))
                 {
                     FD_SET(sServer, &fds_server);
+                    MSleep(1, "ms");
                 }
-                if (select(0, &fds_server, NULL, NULL, &tv_temp) <= 0)
+                if (select(sServer + 1, &fds_server, NULL, NULL, &tv_temp) <= 0)
                 {
                     break;
                 }
