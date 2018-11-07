@@ -157,6 +157,7 @@
     <ClCompile Include="SocksProxy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Lib\MemPool.h" />
     <ClInclude Include="..\Lib\MSocket.h" />
     <ClInclude Include="..\Lib\MString.h" />
     <ClInclude Include="..\Lib\MyEvent.h" />

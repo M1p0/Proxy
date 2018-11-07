@@ -5,6 +5,8 @@
 #include <list>
 #include <mutex>
 #include <unordered_map>
+
+
 class SocksProxy
 {
 public:
@@ -24,14 +26,13 @@ private:
     {
         SOCKET src;
         SOCKET dst;
-
     };
     std::list <Relation> list_relation;
     std::list <Task> list_task;
     std::list <SOCKET> list_sockets;
+    std::mutex mtx_task;
     std::mutex mtx_sockets;
     std::mutex mtx_relation;
-    std::mutex mtx_task;
     int Listener(SOCKET sLocal);
     int Confirm();
     int Receiver();

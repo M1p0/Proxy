@@ -41,5 +41,8 @@
     <ClInclude Include="SocksProxy.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\Lib\MemPool.h">
+      <Filter>头文件\Lib_Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

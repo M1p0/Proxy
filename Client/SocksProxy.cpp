@@ -3,8 +3,10 @@
 #include <string>
 #include <Public.h>
 #include "MString.h"
+#include <MemPool.h>
 using namespace std;
 
+extern MemPool pool;
 SocksProxy::SocksProxy(int iPort)
 {
     Init(iPort);
@@ -224,7 +226,7 @@ int SocksProxy::Receiver()
         mtx_relation.unlock();
         fd_set fds_client;
         FD_ZERO(&fds_client);
-        timeval tv = { 0,10 };
+        timeval tv = { 0,1 };
 
         if (!FD_ISSET(sSrc, &fds_client))
         {
@@ -261,6 +263,11 @@ int SocksProxy::Receiver()
                 //mtx_relation.unlock();
                 //sock.Close(sSrc);
                 //sock.Close(sDst);
+                //delete[] Data_Client;
+                //continue;
+
+
+                delete[] Data_Client;
                 mtx_relation.lock();
                 list_relation.push_back({ sSrc, sDst });
                 mtx_relation.unlock();
@@ -317,7 +324,8 @@ int SocksProxy::Forwarder()
         list_task.pop_front();
         mtx_task.unlock();
         sock.Send(task.dst, task.data, task.Length);
-        delete task.data;
+        delete[] task.data;
+        //Destroy(task.data, pool);
         task.data = NULL;
         MSleep(1, "ms");
     }
