@@ -113,19 +113,37 @@ int SocksProxy::Confirm()
             }
 
             SOCKET sServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);   //tcp
+
+            unsigned long mode = 1;  //无阻塞socket
+            ioctlsocket(sServer, FIONBIO, &mode);
             if (sock.Connect(sServer, IP.c_str(), Port) != 0)             //连接目标服务器
             {
-                sock.Close(sClient);
-                continue;
+                timeval tv = { 1,0 };  //连接超时1s
+                fd_set Write;
+                FD_ZERO(&Write);
+                FD_SET(sServer, &Write);
+                select(sServer+1, NULL, &Write, NULL, &tv);
+                if (!FD_ISSET(sServer, &Write))
+                {
+                    sock.Close(sClient);
+                    continue;
+                }
+                else
+                {
+                    mode = 0; //阻塞socket
+                    ioctlsocket(sServer, FIONBIO, &mode);
+                    mtx_relation.lock();
+                    list_relation.push_back({ sClient,sServer });
+                    list_relation.push_back({ sServer,sClient });
+                    mtx_relation.unlock();
+                }
             }
             else
             {
-
+                mode = 0; //阻塞socket
+                ioctlsocket(sServer, FIONBIO, &mode);
                 mtx_relation.lock();
                 list_relation.push_back({ sClient,sServer });
-                mtx_relation.unlock();
-
-                mtx_relation.lock();
                 list_relation.push_back({ sServer,sClient });
                 mtx_relation.unlock();
             }
@@ -171,11 +189,11 @@ int SocksProxy::Run()
     thread t_Forwarder_2(&SocksProxy::Forwarder, this);
     t_Forwarder_2.detach();
 
-    //thread t_Listener_1(&SocksProxy::Listener, this, sLocal);
-    //t_Listener_1.detach();
+    thread t_Listener_1(&SocksProxy::Listener, this, sLocal);
+    t_Listener_1.detach();
 
-    thread t_Listener2(&SocksProxy::Listener, this, sLocal);
-    t_Listener2.join();
+    //thread t_Listener2(&SocksProxy::Listener, this, sLocal);
+    //t_Listener2.join();
     return 0;
 }
 
@@ -227,7 +245,7 @@ int SocksProxy::Receiver()
         fd_set fds_client;
         FD_ZERO(&fds_client);
         timeval tv = { 0,1 };
-
+        
         if (!FD_ISSET(sSrc, &fds_client))
         {
             MSleep(1, "ms");
@@ -238,7 +256,6 @@ int SocksProxy::Receiver()
             mtx_relation.lock();
             list_relation.push_back({ sSrc ,sDst });
             mtx_relation.unlock();
-            continue;
         }
         else
         {
@@ -247,31 +264,23 @@ int SocksProxy::Receiver()
             retVal = sock.Recv(sSrc, Data_Client, 10240);
             if (retVal < 0)
             {
-                //list<Relation>::iterator it;
-                //mtx_relation.lock();
-                //for (it = list_relation.begin(); it != list_relation.end();)
-                //{
-                //    if (it->src == sSrc)
-                //    {
-                //        list_relation.erase(it++);
-                //    }
-                //    else
-                //    {
-                //        it++;
-                //    }
-                //}
-                //mtx_relation.unlock();
-                //sock.Close(sSrc);
-                //sock.Close(sDst);
-                //delete[] Data_Client;
-                //continue;
-
-
-                delete[] Data_Client;
+                list<Relation>::iterator it;
                 mtx_relation.lock();
-                list_relation.push_back({ sSrc, sDst });
+                for (it=list_relation.begin();it!=list_relation.end();)
+                {
+                    if (it->src==sSrc||it->dst==sSrc)
+                    {
+                        list_relation.erase(it++);
+                    }
+                    else
+                    {
+                        it++;
+                    }
+                }
                 mtx_relation.unlock();
-                continue;
+                sock.Close(sSrc);
+                sock.Close(sDst);
+                delete[] Data_Client;
             }
             else
             {
@@ -299,9 +308,8 @@ int SocksProxy::Receiver()
                     list_relation.push_front({ sSrc ,sDst });
                     mtx_relation.unlock();
                 }
-
             }
-
+            MSleep(1, "ms");
         }
         MSleep(1, "ms");
     }
@@ -323,7 +331,11 @@ int SocksProxy::Forwarder()
         Task task = list_task.front();
         list_task.pop_front();
         mtx_task.unlock();
-        sock.Send(task.dst, task.data, task.Length);
+        int retval=sock.Send(task.dst, task.data, task.Length);
+        if (retval<0)
+        {
+            sock.Close(task.dst);
+        }
         delete[] task.data;
         //Destroy(task.data, pool);
         task.data = NULL;

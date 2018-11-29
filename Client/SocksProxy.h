@@ -15,7 +15,7 @@ public:
     int Run();
     virtual ~SocksProxy() {};
 
-private:
+
     struct Task
     {
         SOCKET dst;
