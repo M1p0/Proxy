@@ -272,7 +272,7 @@ int SocksProxy::Receiver()
         }
         else
         {
-            char* Data_Client = new char[10240];   // request
+            char* Data_Client = new char[10240];   // request   10kb
             memset(Data_Client, 0, 10240);
             retVal = sock.Recv(sSrc, Data_Client, 10240);
             if (retVal < 0)
