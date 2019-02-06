@@ -218,7 +218,7 @@ int SocksProxy::Listener(SOCKET sLocal)
         {
             Cli_Info Info;
             sock.Getpeername(sClient, Info);
-            cout << "client connected from " << Info.ip << ":" << Info.port << endl;
+            //cout << "client connected from " << Info.ip << ":" << Info.port << endl;
             mtx_sockets.lock();
             list_sockets.push_back(sClient);
             mtx_sockets.unlock();
@@ -247,11 +247,11 @@ int SocksProxy::Receiver()
         SOCKET sDst = rel.dst;
         fd_set fds_client;
         FD_ZERO(&fds_client);
-        timeval tv = { 0,1 };
+        timeval tv = { 0,0 };
 
 
         const char* Zero_Bit = "";
-        retVal=sock.Send(sSrc, Zero_Bit, 0);
+        retVal=sock.Send(sSrc, Zero_Bit, 0);       //发送0字节用于判断socket是否连接正常
         if (retVal < 0)
         {
             sock.Close(sSrc);
@@ -267,21 +267,21 @@ int SocksProxy::Receiver()
         if (select(sSrc + 1, &fds_client, NULL, NULL, &tv) <= 0)
         {
             mtx_relation.lock();
-            list_relation.push_back({ sSrc ,sDst });
+            list_relation.push_back({ sSrc ,sDst });     //连接正常 但socket中无数据
             mtx_relation.unlock();
         }
         else
         {
-            char* Data_Client = new char[10240];   // request   10kb
+            char* Data_Client = new char[102400];   // request  100kb
             memset(Data_Client, 0, 10240);
-            retVal = sock.Recv(sSrc, Data_Client, 10240);
+            retVal = sock.Recv(sSrc, Data_Client, 102400);
             if (retVal < 0)
             {
                 list<Relation>::iterator it;
                 mtx_relation.lock();
-                for (it=list_relation.begin();it!=list_relation.end();)
+                for (it = list_relation.begin(); it != list_relation.end();)
                 {
-                    if (it->src==sSrc||it->dst==sSrc)
+                    if (it->src == sSrc || it->dst == sSrc)
                     {
                         list_relation.erase(it++);
                     }
