@@ -277,20 +277,6 @@ int SocksProxy::Receiver()
             retVal = sock.Recv(sSrc, Data_Client, 102400);
             if (retVal < 0)
             {
-                list<Relation>::iterator it;
-                mtx_relation.lock();
-                for (it = list_relation.begin(); it != list_relation.end();)
-                {
-                    if (it->src == sSrc || it->dst == sSrc)
-                    {
-                        list_relation.erase(it++);
-                    }
-                    else
-                    {
-                        it++;
-                    }
-                }
-                mtx_relation.unlock();
                 sock.Close(sSrc);
                 sock.Close(sDst);
                 delete[] Data_Client;
