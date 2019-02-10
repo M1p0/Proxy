@@ -122,7 +122,7 @@ int SocksProxy::Confirm()
                 fd_set Write;
                 FD_ZERO(&Write);
                 FD_SET(sServer, &Write);
-                select(sServer+1, NULL, &Write, NULL, &tv);
+                select(sServer + 1, NULL, &Write, NULL, &tv);
                 if (!FD_ISSET(sServer, &Write))
                 {
                     sock.Close(sClient);
@@ -193,10 +193,10 @@ int SocksProxy::Run()
     t_Forwarder_2.detach();
 
     thread t_Listener_1(&SocksProxy::Listener, this, sLocal);
-    t_Listener_1.join();
+    t_Listener_1.detach();
 
-    //thread t_Listener2(&SocksProxy::Listener, this, sLocal);
-    //t_Listener2.join();
+    thread t_Listener2(&SocksProxy::Listener, this, sLocal);
+    t_Listener2.join();
     return 0;
 }
 
@@ -251,7 +251,7 @@ int SocksProxy::Receiver()
 
 
         const char* Zero_Bit = "";
-        retVal=sock.Send(sSrc, Zero_Bit, 0);       //发送0字节用于判断socket是否连接正常
+        retVal = sock.Send(sSrc, Zero_Bit, 0);       //发送0字节用于判断socket是否连接正常
         if (retVal < 0)
         {
             sock.Close(sSrc);
@@ -259,7 +259,7 @@ int SocksProxy::Receiver()
             continue;
         }
 
-        
+
         if (!FD_ISSET(sSrc, &fds_client))
         {
             FD_SET(sSrc, &fds_client);
@@ -301,12 +301,16 @@ int SocksProxy::Receiver()
                     list_relation.push_back({ sSrc, sDst });
                     mtx_relation.unlock();
                 }
-                else //有数据 高优先级 推至链表最前部
+                else //有数据 高优先级 推至链表最前部   若socket中一直有数据 可能导致其他socket数据堆积
                 {
                     mtx_relation.lock();
                     list_relation.push_front({ sSrc ,sDst });
                     mtx_relation.unlock();
                 }
+
+                //mtx_relation.lock();
+                //list_relation.push_back({ sSrc, sDst });
+                //mtx_relation.unlock();
             }
         }
         MSleep(1, "ms");
@@ -329,8 +333,8 @@ int SocksProxy::Forwarder()
         Task task = list_task.front();
         list_task.pop_front();
         mtx_task.unlock();
-        int retVal=sock.Send(task.dst, task.data, task.Length);
-        if (retVal<0)
+        int retVal = sock.Send(task.dst, task.data, task.Length);
+        if (retVal < 0)
         {
             sock.Close(task.dst);
         }
