@@ -116,7 +116,7 @@ int SocksProxy::Confirm()
 
             unsigned long mode = 1;  //无阻塞socket
             ioctlsocket(sServer, FIONBIO, &mode);
-            if (sock.Connect(sServer, IP.c_str(), Port) != 0)             //连接目标服务器
+            if (sock.Connect(sServer, IP.c_str(), Port) != 0)             //连接目标服务器失败
             {
                 timeval tv = { 1,0 };  //连接超时1s
                 fd_set Write;
@@ -128,7 +128,7 @@ int SocksProxy::Confirm()
                     sock.Close(sClient);
                     continue;
                 }
-                else
+                else    //超时前连接成功
                 {
                     mode = 0; //阻塞socket
                     ioctlsocket(sServer, FIONBIO, &mode);
