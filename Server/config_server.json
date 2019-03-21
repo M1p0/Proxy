@@ -1,0 +1,6 @@
+{
+    "username":"root",
+    "password":"admin",
+    "localport":9998,
+    "packetsize":102400
+}

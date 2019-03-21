@@ -1,9 +1,9 @@
-#undef  WIN32_LEAN_AND_MEAN
+﻿#undef  WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #include <MSocket.h>
 #include <iostream>
 #include "Utils.h"
-#include "ProxyClient.h"
+#include "ProxyServer.h"
 #ifdef _DEBUG
 #pragma comment(lib,"Lib_Debug_x64.lib")
 #else
@@ -11,15 +11,8 @@
 #endif
 
 using namespace std;
-
-
-ProxyClient client;
+ProxyServer server;
 int main()
 {
-
-    client.Run();
-
-    
-    
-
+    server.Run();
 }

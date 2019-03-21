@@ -13,18 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="头文件\Lib_Header">
-      <UniqueIdentifier>{b0138215-a32b-4e7f-8150-93306f8096c9}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Server.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="Utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ProxyClient.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Client.cpp">
+    <ClCompile Include="ProxyServer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="functions.cpp">
@@ -32,25 +29,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Lib\Public.h">
-      <Filter>头文件\Lib_Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Lib\MSocket.h">
-      <Filter>头文件\Lib_Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Lib\MString.h">
-      <Filter>头文件\Lib_Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Lib\MyEvent.h">
-      <Filter>头文件\Lib_Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Lib\MemPool.h">
-      <Filter>头文件\Lib_Header</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ProxyClient.h">
+    <ClInclude Include="ProxyServer.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MJson.h">
