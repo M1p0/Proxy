@@ -243,7 +243,7 @@ int ProxyServer::ClientReceiver()
                         {
 
                         }
-                        
+
                     }
                     else   //无cmd
                     {
@@ -340,8 +340,6 @@ int ProxyServer::ServerReceiver()
                 mtx_list_user.unlock();
             }
         }
-
-
     }
 
     return 0;
@@ -495,6 +493,17 @@ int ProxyServer::Connector()
                 mtx_list_user.lock();
                 list_user.push_back({ guid,sServer,sockid });
                 mtx_list_user.unlock();
+
+                int Token = tokenpool.alloc();
+                Info_Full Info;
+                Info.Token = Token;
+                Info.sClient = sClient;
+                Info.Sockid = sockid;
+                Info.sServer = sServer;
+                Info.Guid = guid;
+                mtx_list_info_full.lock();
+                list_Info_Full.push_back(Info);
+                mtx_list_info_full.unlock();
             }
         }
         else    //第一次就连接成功
@@ -520,6 +529,17 @@ int ProxyServer::Connector()
             mtx_list_user.lock();
             list_user.push_back({ guid,sServer,sockid });
             mtx_list_user.unlock();
+
+            int Token = tokenpool.alloc();
+            Info_Full Info;
+            Info.Token = Token;
+            Info.sClient = sClient;
+            Info.Sockid = sockid;
+            Info.sServer = sServer;
+            Info.Guid = guid;
+            mtx_list_info_full.lock();
+            list_Info_Full.push_back(Info);
+            mtx_list_info_full.unlock();
         }
 
         MSleep(1, "ms");

@@ -16,10 +16,6 @@ using namespace std;
 ProxyClient client;
 int main()
 {
-
     client.Run();
-
-    
-    
 
 }

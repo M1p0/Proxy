@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Utils.h"
 #include "ProxyServer.h"
+#include "TokenPool.h"
 #ifdef _DEBUG
 #pragma comment(lib,"Lib_Debug_x64.lib")
 #else

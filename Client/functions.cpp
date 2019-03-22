@@ -13,7 +13,7 @@ int Connect_Rtn(const char* buff)
         if (strcmp(status.c_str(), "success") == 0)
         {
             client.mtx_list_request.lock();
-            client.list_request.push_back((SOCKET)sockid);
+            client.list_request.push_back(sockid);
             client.mtx_list_request.unlock();
             //client.mtx_map_Info.lock();
             //client.map_Info.insert(pair<SOCKET, Info>(sockid, { 0,0 }));
@@ -23,9 +23,9 @@ int Connect_Rtn(const char* buff)
         else
         {
             client.mtx_map_Info.lock();
-            client.map_Info.erase((SOCKET)sockid);
+            client.map_Info.erase(sockid);
             client.mtx_map_Info.unlock();
-            client.sock.Close((SOCKET)sockid);
+            client.sock.Close(sockid);
         }
     }
     else   //´íÎóµÄ·µ»Ø°ü

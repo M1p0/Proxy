@@ -74,23 +74,19 @@ int Forward(const char* buff, string guid)
             task.data = data;
             task.Length = Length;
             task.dst = -1;
-            while (true)
+
+
+            server.mtx_list_info_full.lock();
+            for (auto it = server.list_Info_Full.begin(); it != server.list_Info_Full.end(); ++it)
             {
-                server.mtx_list_user.lock();
-                for (auto it = server.list_user.begin(); it != server.list_user.end(); ++it)
+                if (it->Sockid == sockid && it->Guid == guid)
                 {
-                    if (it->sockid == sockid && it->guid == guid)
-                    {
-                        task.dst = it->sock;
-                        break;
-                    }
-                }
-                server.mtx_list_user.unlock();
-                if (task.dst!=-1)
-                {
+                    task.dst = it->sServer;
                     break;
                 }
             }
+            server.mtx_list_info_full.unlock();
+
             server.mtx_list_task.lock();
             server.list_task.push_back(task);
             server.mtx_list_task.unlock();

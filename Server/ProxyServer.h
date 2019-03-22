@@ -9,6 +9,7 @@
 #include "MJson.h"
 #include "CFileIO.h"
 #include <Public.h>
+#include "TokenPool.h"
 
 struct Relation
 {
@@ -39,6 +40,16 @@ struct Connect_Request
 };
 
 
+
+struct Info_Full
+{
+    int Token;
+    SOCKET sClient;   //对应客户端
+    int Sockid;   //客户端上的客户端
+    SOCKET sServer; //服务端代理连接的目标服务端
+    string Guid;
+};
+
 class ProxyServer
 {
 public:
@@ -63,22 +74,18 @@ public:
     int localport;
     int packetsize;
     MSocket sock;
-
     list<Connect_Request> list_connect;    //连接队列 尝试与目标服务器建立连接
     mutex mtx_list_connect;
-
-
     unordered_map<string, SOCKET> map_user;    //登陆成功且已经与目标服务器建立连接的用户(通过guid找socket)
     mutex mtx_map_user;
     list<Relation> list_user;     //guid socket(server) sockid(client)的对应关系
     mutex mtx_list_user;
-
-    
     list<Task> list_task;   //所有需要转发的消息都存放在这
     mutex mtx_list_task;
-
+    list<Info_Full> list_Info_Full;
+    mutex mtx_list_info_full;
     unordered_map<string, int(*)(const char*, string)> map_function;
-
+    TokenPool tokenpool;
 private:
     SOCKET sLocal;
 };

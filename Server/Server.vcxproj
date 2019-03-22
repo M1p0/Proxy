@@ -162,12 +162,14 @@
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="ProxyServer.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="TokenPool.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functions.h" />
     <ClInclude Include="MJson.h" />
     <ClInclude Include="ProxyServer.h" />
+    <ClInclude Include="TokenPool.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
